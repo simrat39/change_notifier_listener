@@ -2,24 +2,35 @@ library change_notifier_listener;
 
 import 'package:flutter/material.dart';
 
-class ChangeNotifierListener extends StatefulWidget {
+class ChangeNotifierListener<T extends ChangeNotifier> extends StatefulWidget {
   ChangeNotifierListener({
     Key? key,
     required this.changeNotifier,
     required this.builder,
-  }) : super(key: key);
+    this.autoDispose = false,
+    this.onDispose,
+  })  : assert(!autoDispose || onDispose != null,
+            "onDispose can't be null when autoDispose is true"),
+        super(key: key);
 
-  final ChangeNotifier changeNotifier;
-  final Widget Function(BuildContext context) builder;
+  final T changeNotifier;
+  final Widget Function(BuildContext context, T notifier) builder;
+  final bool autoDispose;
+  final void Function(T notifier)? onDispose;
 
   @override
-  _ChangeNotifierListenerState createState() => _ChangeNotifierListenerState();
+  _ChangeNotifierListenerState<T> createState() =>
+      _ChangeNotifierListenerState<T>();
 }
 
-class _ChangeNotifierListenerState extends State<ChangeNotifierListener> {
+class _ChangeNotifierListenerState<T extends ChangeNotifier>
+    extends State<ChangeNotifierListener<T>> {
+  late T notifier;
+
   @override
   void initState() {
-    widget.changeNotifier.addListener(() {
+    notifier = widget.changeNotifier;
+    notifier.addListener(() {
       rebuild();
     });
     super.initState();
@@ -27,7 +38,10 @@ class _ChangeNotifierListenerState extends State<ChangeNotifierListener> {
 
   @override
   void dispose() {
-    widget.changeNotifier.removeListener(() {
+    if (widget.autoDispose) {
+      widget.onDispose!(notifier);
+    }
+    notifier.removeListener(() {
       rebuild();
     });
     super.dispose();
@@ -35,10 +49,12 @@ class _ChangeNotifierListenerState extends State<ChangeNotifierListener> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(context);
+    return widget.builder(context, notifier);
   }
 
   void rebuild() {
-    if (mounted) setState(() {});
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      if (mounted) setState(() {});
+    });
   }
 }

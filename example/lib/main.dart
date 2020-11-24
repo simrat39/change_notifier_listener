@@ -35,9 +35,9 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierListener(
+    return ChangeNotifierListener<Counter>(
       changeNotifier: counter,
-      builder: (context) => Scaffold(
+      builder: (context, notifier) => Scaffold(
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -46,14 +46,14 @@ class MyHomePage extends StatelessWidget {
                 'You have pushed the button this many times:',
               ),
               Text(
-                counter.val.toString(),
+                notifier.val.toString(),
                 style: Theme.of(context).textTheme.headline4,
               ),
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => counter.increment(),
+          onPressed: () => notifier.increment(),
           tooltip: 'Increment',
           child: Icon(Icons.add),
         ),
@@ -61,9 +61,11 @@ class MyHomePage extends StatelessWidget {
           actions: [
             IconButton(
               icon: Icon(Icons.arrow_forward),
-              onPressed: () => Navigator.of(context)!.push(MaterialPageRoute(
-                builder: (context) => PageTwo(),
-              )),
+              onPressed: () => Navigator.of(context)!.push(
+                MaterialPageRoute(
+                  builder: (context) => PageTwo(),
+                ),
+              ),
             )
           ],
         ),
@@ -80,9 +82,11 @@ class PageTwo extends StatelessWidget {
     print("hii");
     return Scaffold(
       appBar: AppBar(),
-      body: ChangeNotifierListener(
+      body: ChangeNotifierListener<Counter>(
         changeNotifier: counter,
-        builder: (context) => Scaffold(
+        autoDispose: true,
+        onDispose: (notifier) => notifier.increment(),
+        builder: (context, notifier) => Scaffold(
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -91,14 +95,14 @@ class PageTwo extends StatelessWidget {
                   'You have pushed the button this many times:',
                 ),
                 Text(
-                  counter.val.toString(),
+                  notifier.val.toString(),
                   style: Theme.of(context).textTheme.headline4,
                 ),
               ],
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => counter.increment(),
+            onPressed: () => notifier.increment(),
             tooltip: 'Increment',
             child: Icon(Icons.add),
           ), // This trailing comma makes auto-formatting nicer for build methods.
