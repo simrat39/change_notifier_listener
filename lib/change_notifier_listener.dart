@@ -7,15 +7,11 @@ class ChangeNotifierListener<T extends ChangeNotifier> extends StatefulWidget {
     Key? key,
     required this.changeNotifier,
     required this.builder,
-    this.autoDispose = false,
     this.onDispose,
-  })  : assert(!autoDispose || onDispose != null,
-            "onDispose can't be null when autoDispose is true"),
-        super(key: key);
+  }) : super(key: key);
 
   final T changeNotifier;
   final Widget Function(BuildContext context, T notifier) builder;
-  final bool autoDispose;
   final void Function(T notifier)? onDispose;
 
   @override
@@ -38,9 +34,7 @@ class _ChangeNotifierListenerState<T extends ChangeNotifier>
 
   @override
   void dispose() {
-    if (widget.autoDispose) {
-      widget.onDispose!(notifier);
-    }
+    if (widget.onDispose != null) widget.onDispose!(notifier);
     notifier.removeListener(() {
       rebuild();
     });

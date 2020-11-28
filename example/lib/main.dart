@@ -84,7 +84,6 @@ class PageTwo extends StatelessWidget {
       appBar: AppBar(),
       body: ChangeNotifierListener<Counter>(
         changeNotifier: counter,
-        autoDispose: true,
         onDispose: (notifier) => notifier.increment(),
         builder: (context, notifier) => Scaffold(
           body: Center(
